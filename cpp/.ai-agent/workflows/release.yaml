@@ -1,0 +1,35 @@
+name: "Release Process"
+description: "Build, test, and create a release"
+variables:
+  version: "{{input:Version number (e.g., 1.0.0)}}"
+  branch: "{{git:branch}}"
+steps:
+  - name: "Check git status"
+    description: "Ensure working directory is clean"
+    command: "git status --porcelain"
+    when: "always"
+  
+  - name: "Run tests"
+    description: "Execute full test suite"
+    command: "{{testCommand}}"
+    when: "success"
+  
+  - name: "Build project"
+    description: "Create production build"
+    command: "npm run build"
+    when: "success"
+  
+  - name: "Update version"
+    description: "Bump version in package.json"
+    command: "npm version {{version}} --no-git-tag-version"
+    when: "success"
+  
+  - name: "Create git tag"
+    description: "Tag the release"
+    command: "git tag v{{version}}"
+    when: "success"
+  
+  - name: "Push changes"
+    description: "Push commits and tags"
+    command: "git push && git push --tags"
+    when: "confirm"

@@ -1,0 +1,21 @@
+name: "Project Setup"
+description: "Initialize development environment"
+steps:
+  - name: "Install dependencies"
+    description: "Install npm packages"
+    command: "npm install"
+  
+  - name: "Setup git hooks"
+    description: "Install pre-commit hooks"
+    command: "npx husky install"
+    when: "optional"
+  
+  - name: "Create .env file"
+    description: "Copy environment template"
+    command: "cp .env.example .env"
+    when: "optional"
+  
+  - name: "Initialize database"
+    description: "Run database migrations"
+    command: "npm run db:migrate"
+    when: "confirm"
