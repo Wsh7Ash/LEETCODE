@@ -1,0 +1,71 @@
+class Solution {
+public:
+    bool isSolvable(vector<string>& words, string result) {
+        vector<long long> coeff(26, 0);
+        unordered_set<char> nonZeroChars;
+        int maxLen = 0;
+        
+        // Process words
+        for (const string& word : words) {
+            maxLen = max(maxLen, (int)word.size());
+            long long val = 1;
+            for (int i = word.size() - 1; i >= 0; i--) {
+                coeff[word[i] - 'A'] += val;
+                val *= 10;
+            }
+            if (word.size() > 1) nonZeroChars.insert(word[0]);
+        }
+        
+        // Process result
+        long long val = 1;
+        for (int i = result.size() - 1; i >= 0; i--) {
+            coeff[result[i] - 'A'] -= val;
+            val *= 10;
+        }
+        if (result.size() > 1) nonZeroChars.insert(result[0]);
+        
+        // Collect non-zero coefficient characters
+        vector<pair<long long, char>> charCoeffs;
+        for (int i = 0; i < 26; i++) {
+            if (coeff[i] != 0) {
+                charCoeffs.push_back({abs(coeff[i]), 'A' + i});
+            }
+        }
+        
+        // Sort by coefficient magnitude (descending)
+        sort(charCoeffs.rbegin(), charCoeffs.rend());
+        
+        vector<char> chars;
+        vector<long long> coefficients;
+        for (auto& p : charCoeffs) {
+            chars.push_back(p.second);
+            coefficients.push_back(coeff[p.second - 'A']);
+        }
+        
+        vector<int> used(10, 0);
+        return backtrack(chars, coefficients, 0, 0, used, nonZeroChars);
+    }
+
+private:
+    bool backtrack(vector<char>& chars, vector<long long>& coeffs, 
+                   int idx, long long sum, vector<int>& used, 
+                   unordered_set<char>& nonZeroChars) {
+        
+        if (idx == chars.size()) return sum == 0;
+        
+        char c = chars[idx];
+        long long coef = coeffs[idx];
+        
+        for (int d = 0; d <= 9; d++) {
+            if (used[d]) continue;
+            if (d == 0 && nonZeroChars.count(c)) continue;
+            
+            used[d] = 1;
+            if (backtrack(chars, coeffs, idx + 1, sum + coef * d, used, nonZeroChars)) {
+                return true;
+            }
+            used[d] = 0;
+        }
+        return false;
+    }
+};
