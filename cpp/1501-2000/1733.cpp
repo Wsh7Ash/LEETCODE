@@ -40,6 +40,6 @@ class Solution {
                 }
                 minUsers = min(minUsers, (int)userToteach.size());
             }
-            return minUsers
+            return minUsers;
         }
     };
